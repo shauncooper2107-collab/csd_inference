@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "CSD Inference Engine"
+abstract: >-
+  A domain-general inference tool for detecting critical slowing down and
+  early-warning signals in real time series, with Ornstein-Uhlenbeck parameter
+  estimation, surrogate-based significance testing, goodness-of-fit gating, and
+  an intervention first-passage forecasting layer.
+type: software
+authors:
+  - family-names: Cooper
+    given-names: Shaun
+    email: shauncooper2107@gmail.com
+license: MIT
+version: 0.1.0
+date-released: 2026-07-06
+keywords:
+  - critical slowing down
+  - early warning signals
+  - critical transitions
+  - Ornstein-Uhlenbeck
+  - time series
