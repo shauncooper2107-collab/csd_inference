@@ -80,6 +80,7 @@ def test_rolling_indicators_match_naive():
         assert abs(r.ar1[i] - naive) < 1e-9, (i, r.ar1[i], naive)
 
 
+<<<<<<< HEAD
 def test_permutation_null_weaker_than_fourier():
     """The permutation null destroys all autocorrelation (white noise), so it
     is weaker and should give a p-value <= the Fourier null on a correlated
@@ -97,6 +98,8 @@ def test_permutation_null_weaker_than_fourier():
     assert f.tau_ar1 == p.tau_ar1           # same observed statistic
 
 
+=======
+>>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
 def test_reproducibility():
     """Same seed => identical surrogate p-value."""
     x = ci.simulate_ou(400, 1.0, k=0.2, sigma=1.0, rng=np.random.default_rng(5))
@@ -104,6 +107,7 @@ def test_reproducibility():
     a = ci.surrogate_significance(ser, n_surrogates=200, rng=np.random.default_rng(9))
     b = ci.surrogate_significance(ser, n_surrogates=200, rng=np.random.default_rng(9))
     assert a.p_ar1 == b.p_ar1
+<<<<<<< HEAD
 
 
 # ---------------------------------------------------------------------------
@@ -167,3 +171,5 @@ def test_dropout_cleaning_recovers_signal():
                                    rng=np.random.default_rng(0))
     assert gof.adequate                # cleaned fit must pass
     assert tt.tau_ar1 > 0.5 and tt.p_ar1 < 0.05   # signal recovered
+=======
+>>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc

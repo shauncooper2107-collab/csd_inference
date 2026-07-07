@@ -86,6 +86,7 @@ results = ci.run_analysis(series, make_plot="report.png")  # all of it
 
 ---
 
+<<<<<<< HEAD
 ## Real instrument data: sampling interval and artifacts
 
 Real monitoring channels (pulse oximetry, ECG-derived signals, sensor feeds) bring two problems that will silently wreck an EWS analysis if ignored. The tool now guards against both.
@@ -120,6 +121,9 @@ Flagged samples are linearly interpolated from their neighbours, and the number 
 **Honest caveat:** interpolating across gaps can itself smooth the series and inflate autocorrelation. Treat a signal that appears only after cleaning as *worth investigating*, not proven. Confirm it does not depend on the interpolation — for example by comparing against simply excising the artifact segments.
 
 ---
+=======
+## Validate it before you trust it
+>>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
 
 Run the engine with no arguments to execute a built-in three-case validation:
 
@@ -135,6 +139,7 @@ Calibration was checked directly: on independent stationary series the false-pos
 
 ---
 
+<<<<<<< HEAD
 ## Two significance nulls
 
 Significance is established against surrogates, and the tool reports two:
@@ -156,6 +161,8 @@ On `foldbif` (the canonical fold bifurcation) the engine recovers AR(1) Kendall 
 
 ---
 
+=======
+>>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
 ## What it deliberately does *not* do
 
 - It does not interpret your series for you. `k` is a restoring rate, not a diagnosis.
