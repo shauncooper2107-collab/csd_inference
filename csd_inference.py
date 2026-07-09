@@ -82,7 +82,6 @@ class Series:
 
 
 def load_series(path: str, time_col: Optional[str] = None,
-<<<<<<< HEAD
                 value_col: Optional[str] = None,
                 dt_override: Optional[float] = None) -> Series:
     """Load a CSV. If column names are omitted, the first numeric column is
@@ -93,13 +92,6 @@ def load_series(path: str, time_col: Optional[str] = None,
     rounded, duplicated, or in awkward units. If it is omitted, dt is
     inferred from the time column and the loader REFUSES (rather than
     guessing) when that inference is ambiguous."""
-=======
-                value_col: Optional[str] = None) -> Series:
-    """Load a CSV. If column names are omitted, the first numeric column is
-    taken as the value and (if a second exists) the first as time. Uneven
-    sampling is detected and reported; the analysis assumes uniform dt, so
-    the engine warns rather than silently interpolating."""
->>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
     import pandas as pd
     df = pd.read_csv(path)
     numeric = df.select_dtypes(include=[np.number])
@@ -120,7 +112,6 @@ def load_series(path: str, time_col: Optional[str] = None,
     order = np.argsort(t)
     t, x = t[order], x[order]
 
-<<<<<<< HEAD
     # Determine the sampling interval. Silently defaulting dt=1.0 is dangerous:
     # every rate (k, tau), boundary, and forecast is expressed in units of dt,
     # so a wrong dt invalidates the whole report without any error. We therefore
@@ -208,15 +199,6 @@ def clean_dropouts(x: np.ndarray, floor: Optional[float] = None,
               f"{'floor+' if floor is not None else ''}MAD spike test; "
               f"interpolated from neighbours.")
     return cleaned, n_removed
-=======
-    diffs = np.diff(t)
-    dt = float(np.median(diffs))
-    if diffs.size and np.std(diffs) > 0.05 * abs(dt):
-        print(f"[warn] sampling looks uneven (dt spread "
-              f"{np.std(diffs):.3g} vs median {dt:.3g}). Analysis assumes "
-              f"uniform spacing; consider resampling.")
-    return Series(t=t, x=x, dt=dt if dt != 0 else 1.0, name=value_col)
->>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
 
 
 # ===========================================================================
@@ -392,10 +374,7 @@ class TrendTest:
     p_ar1: float
     p_var: float
     n_surrogates: int
-<<<<<<< HEAD
     null_method: str = "fourier"
-=======
->>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
     null_ar1: np.ndarray = field(default=None, repr=False)
 
 
@@ -411,14 +390,9 @@ def _kendall(indicator: np.ndarray) -> float:
 def fourier_surrogate(x: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     """Phase-randomised (Fourier) surrogate. Preserves the power spectrum --
     hence the linear autocorrelation structure -- while destroying any
-<<<<<<< HEAD
     temporal TREND in that structure. This is the stricter, CSD-appropriate
     null: 'is the rise in autocorrelation real, or just what a STATIONARY
     correlated process produces by chance?'"""
-=======
-    temporal TREND in that structure. This is the correct null for 'is the
-    rise in autocorrelation real, or just a stationary correlated process?'"""
->>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
     n = len(x)
     xm = x - x.mean()
     F = np.fft.rfft(xm)
@@ -431,7 +405,6 @@ def fourier_surrogate(x: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     return s + x.mean()
 
 
-<<<<<<< HEAD
 def permutation_surrogate(x: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     """Random permutation (shuffle) surrogate. Destroys ALL temporal
     structure, so the null is white noise. This is the conventional Dakos et
@@ -466,15 +439,6 @@ def surrogate_significance(series: Series, window_frac: float = 0.5,
     if null_method not in _SURROGATE_FUNCS:
         raise ValueError(f"null_method must be one of {list(_SURROGATE_FUNCS)}")
     surrogate = _SURROGATE_FUNCS[null_method]
-=======
-def surrogate_significance(series: Series, window_frac: float = 0.5,
-                           bandwidth: float = None, n_surrogates: int = 1000,
-                           rng: Optional[np.random.Generator] = None) -> TrendTest:
-    """Kendall-tau trend of the rolling AR(1) and variance indicators, with
-    one-sided p-values from Fourier surrogates. p = P(tau_null >= tau_obs).
-    Small p => the upward CSD trend is unlikely under a stationary process
-    with the same spectrum."""
->>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
     rng = rng or np.random.default_rng(0)
     obs = rolling_indicators(series, window_frac, bandwidth)
     tau_ar1 = _kendall(obs.ar1)
@@ -483,11 +447,7 @@ def surrogate_significance(series: Series, window_frac: float = 0.5,
     null_ar1 = np.empty(n_surrogates)
     null_var = np.empty(n_surrogates)
     for s in range(n_surrogates):
-<<<<<<< HEAD
         surr = Series(series.t, surrogate(series.x, rng),
-=======
-        surr = Series(series.t, fourier_surrogate(series.x, rng),
->>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
                       series.dt, series.name)
         r = rolling_indicators(surr, window_frac, bandwidth, compute_skew=False)
         null_ar1[s] = _kendall(r.ar1)
@@ -496,12 +456,8 @@ def surrogate_significance(series: Series, window_frac: float = 0.5,
     p_ar1 = (1 + np.sum(null_ar1 >= tau_ar1)) / (1 + n_surrogates)
     p_var = (1 + np.sum(null_var >= tau_var)) / (1 + n_surrogates)
     return TrendTest(tau_ar1=tau_ar1, tau_var=tau_var, p_ar1=p_ar1,
-<<<<<<< HEAD
                      p_var=p_var, n_surrogates=n_surrogates,
                      null_method=null_method, null_ar1=null_ar1)
-=======
-                     p_var=p_var, n_surrogates=n_surrogates, null_ar1=null_ar1)
->>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
 
 
 # ===========================================================================
@@ -655,7 +611,6 @@ def intervention_forecast(fit: OUFit, boundary_sds: float = 3.0,
 #  full report
 # ===========================================================================
 def run_analysis(series: Series, seed: int = 0, n_surrogates: int = 1000,
-<<<<<<< HEAD
                  make_plot: Optional[str] = None,
                  both_nulls: bool = True) -> dict:
     rng = np.random.default_rng(seed)
@@ -666,13 +621,6 @@ def run_analysis(series: Series, seed: int = 0, n_surrogates: int = 1000,
     trend_perm = (surrogate_significance(series, n_surrogates=n_surrogates,
                                          null_method="permutation", rng=rng)
                   if both_nulls else None)
-=======
-                 make_plot: Optional[str] = None) -> dict:
-    rng = np.random.default_rng(seed)
-    fit = estimate_ou(series, rng=rng)
-    gof = ou_goodness_of_fit(series)
-    trend = surrogate_significance(series, n_surrogates=n_surrogates, rng=rng)
->>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
     sens = sensitivity_analysis(series)
     forecast = intervention_forecast(fit, rng=rng)
 
@@ -691,7 +639,6 @@ def run_analysis(series: Series, seed: int = 0, n_surrogates: int = 1000,
           f"normality p = {gof.normality_p:.3f}")
     print(f"    {'PASS' if gof.adequate else 'CAUTION'}: {gof.note}")
 
-<<<<<<< HEAD
     star = lambda p: "***" if p < 0.01 else "**" if p < 0.05 else "ns"
     print(f"\n[3] CSD TREND + SURROGATE SIGNIFICANCE "
           f"({trend.n_surrogates} surrogates)")
@@ -707,15 +654,6 @@ def run_analysis(series: Series, seed: int = 0, n_surrogates: int = 1000,
         print(f"    (Fourier is the stricter, CSD-appropriate null; "
               f"permutation matches the\n     conventional literature test. "
               f"Divergence => 'signal' is partly mere autocorrelation.)")
-=======
-    print(f"\n[3] CSD TREND + SURROGATE SIGNIFICANCE "
-          f"({trend.n_surrogates} Fourier surrogates)")
-    star = lambda p: "***" if p < 0.01 else "**" if p < 0.05 else "ns"
-    print(f"    AR(1) Kendall tau = {trend.tau_ar1:+.3f}   "
-          f"p = {trend.p_ar1:.4f}  {star(trend.p_ar1)}")
-    print(f"    variance   tau    = {trend.tau_var:+.3f}   "
-          f"p = {trend.p_var:.4f}  {star(trend.p_var)}")
->>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
 
     print(f"\n[4] ROBUSTNESS (grid over window x bandwidth)")
     print(f"    fraction of grid with positive AR(1) trend = "
@@ -735,16 +673,11 @@ def run_analysis(series: Series, seed: int = 0, n_surrogates: int = 1000,
                    and gof.adequate)
                else "NO CLEAR SIGNAL / model caution — see notes above")
     print(f"\n{'='*70}\nVERDICT: {verdict}\n{'='*70}\n")
-<<<<<<< HEAD
     print("(Verdict uses the strict Fourier null. The conventional "
           "permutation test may\n differ; see [3].)\n")
 
     results = dict(fit=fit, gof=gof, trend=trend, trend_perm=trend_perm,
                    sens=sens, forecast=forecast)
-=======
-
-    results = dict(fit=fit, gof=gof, trend=trend, sens=sens, forecast=forecast)
->>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
     if make_plot:
         _plot_report(series, results, make_plot)
     return results
@@ -829,7 +762,6 @@ def main():
     ap.add_argument("csv", nargs="?", help="CSV file; omit to run the demo.")
     ap.add_argument("--time-col", default=None)
     ap.add_argument("--value-col", default=None)
-<<<<<<< HEAD
     ap.add_argument("--dt", type=float, default=None,
                     help="physical sampling interval (e.g. 1.0 for 1 Hz). "
                          "Strongly recommended for real instrument data; "
@@ -840,23 +772,17 @@ def main():
     ap.add_argument("--floor", type=float, default=None,
                     help="values <= floor are treated as 'no signal' and "
                          "cleaned (e.g. --floor 1 for SpO2). Implies --clean.")
-=======
->>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--surrogates", type=int, default=1000)
     ap.add_argument("--plot", default=None, help="path to save a PNG report")
     args = ap.parse_args()
 
     if args.csv:
-<<<<<<< HEAD
         series = load_series(args.csv, args.time_col, args.value_col,
                              dt_override=args.dt)
         if args.clean or args.floor is not None:
             cleaned, _ = clean_dropouts(series.x, floor=args.floor)
             series = Series(series.t, cleaned, series.dt, series.name)
-=======
-        series = load_series(args.csv, args.time_col, args.value_col)
->>>>>>> d69fdd40f49360b1245eb7faede3baa3635a57fc
         run_analysis(series, seed=args.seed, n_surrogates=args.surrogates,
                      make_plot=args.plot)
     else:
